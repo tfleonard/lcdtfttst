@@ -121,6 +121,12 @@
 #define X1 (1 << PC2)	//	X1	-	PC2		A2, digital out, analog in
 #define Y1 (1 << PC3)	//	Y1	-	PC3		A3, digital out, analog in
 
+// Touchscreen connection:
+#define YY1 A3  // need two analog inputs
+#define XX1 A2  //
+#define YY2 9   //
+#define XX2 8   //
+
 #endif
 
 

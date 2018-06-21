@@ -45,9 +45,6 @@ FILE *lcdfp = &lcd_str;
 
 
 
-
-
-
 // my main, called from loop
 void mymain(void) {
 
@@ -58,7 +55,6 @@ Lcd *l = new Lcd();
 Graphics *g = new Graphics();
 
 int pass = 0;
-//float freq = 7.0e06;
 uint8_t touch = 0;
 
 pixColor  f = {0xfc,0x0,0x0};
@@ -77,74 +73,39 @@ pixColor b = {0x0,0x3c,0x0};
   printf("main: Starting loop\n");
 #endif
 
-#if 0
-	DdsInit();
-	dds(freq);
+	{
+		uint8_t port = digitalPinToPort(XX1);
+		uint8_t pin = digitalPinToBitMask(XX1);
+		printf(" XX1: port: 0x%x, pin: 0x%x\n", port,pin);
 
-	Sw *dot = new Sw(DOT, PORTC_ADR);
-	Sw *dash = new Sw(DASH, PORTC_ADR);
-	Sw *pb = new Sw(PB, PORTD_ADR);
-#endif
+		port = digitalPinToPort(XX2);
+		pin = digitalPinToBitMask(XX2);
+		printf(" XX2: port: 0x%x, pin: 0x%x\n", port,pin);
+
+		port = digitalPinToPort(YY1);
+		pin = digitalPinToBitMask(YY1);
+		printf(" YY1: port: 0x%x, pin: 0x%x\n", port,pin);
+		
+		port = digitalPinToPort(YY2);
+		pin = digitalPinToBitMask(YY2);
+		printf(" YY2: port: 0x%x, pin: 0x%x\n", port,pin);
+
+
+		printf(" X1: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTC, X1);
+		printf(" X2: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTB, X2);
+		printf(" Y1: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTC, Y1);
+		printf(" Y2: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTB, Y2);
+		
+	}
+
 
 	ElapsedTime *et = new ElapsedTime(100);
-
-//	Encoder *enc = new Encoder(ENCA, ENCB, PORTB_ADR);
-//	volatile uint32_t encoderCount = 0;
 
   while(1) {
     char buf[16];
 
-#if 0
-		if (pb->hasEvent()) {
-			if (pb->getEvent() == EV_CLOSE) {
-				sprintf(buf,"PB_CLOSE");
-			} else {
-				sprintf(buf,"PB_OPEN ");
-			}
-			pb->clearEvent();
-			l->gotoxy(0,0);
-			l->puts(buf);
-		}
-
-		if (dot->hasEvent()) {
-			if (dot->getEvent() == EV_CLOSE) {
-				sprintf(buf,"DOT_CLOSE");
-				} else {
-				sprintf(buf,"DOT_OPEN ");
-			}
-			dot->clearEvent();
-			l->gotoxy(1,0);
-			l->puts(buf);
-		}
-
-		if (dash->hasEvent()) {
-			if (dash->getEvent() == EV_CLOSE) {
-				sprintf(buf,"DASH_CLOSE");
-				} else {
-				sprintf(buf,"DASH_OPEN ");
-			}
-			dash->clearEvent();
-			l->gotoxy(2,0);
-			l->puts(buf);
-		}
-
-		if (enc->hasEvent()) {
-			if (enc->getEvent() == ENC_CW_EVENT) {
-				encoderCount += (enc->getMissedCwCount() + 1);
-				sprintf(buf, "ENC_CW ");
-			} else {
-				encoderCount -= (enc->getMissedCcwCount() + 1);
-				sprintf(buf, "ENC_CCW");
-			}
-			enc->clearEvent();
-			l->gotoxy(3,0);
-			l->puts(buf);
-			l->gotoxy(4,0);
-			fprintf(lcdfp,"count: %4i", encoderCount);
-		}
-#endif
-//			if (l->detectTouch()) {
-			if (l->dt()) {
+			if (l->detectTouch()) {
+//			if (l->dt()) {
 				g->gotoxy(3,0);
 				fprintf(lcdfp, "Touch  pass: %d", pass);
         cursor_t t;
@@ -158,8 +119,8 @@ pixColor b = {0x0,0x3c,0x0};
 
 		if (et->expired()) {
 
-//			if (l->detectTouch()) {
-			if (l->dt()) {
+			if (l->detectTouch()) {
+//			if (l->dt()) {
 				g->gotoxy(2,0);
 				fprintf(lcdfp, "Touch  pass: %d", pass);
 			} else {

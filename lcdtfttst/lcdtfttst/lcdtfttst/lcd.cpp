@@ -75,6 +75,7 @@ Lcd::Lcd(void) {
   Clock::delay(12); 
  	clrScrn();
 	lcdInitialized = 1;
+
 }
 
 
@@ -485,15 +486,6 @@ void Lcd::drawCursor(uint8_t erase) {
 }
 
 
-
-// Touchscreen connection:
-#define YY1 A3  // need two analog inputs
-#define XX1 A2  //
-#define YY2 9   //
-#define XX2 8   //
-
-
-
 bool Lcd::tch(cursor_t *t) {
 uint8_t x1;
 uint8_t x2;
@@ -661,10 +653,10 @@ return result;
 //	1. set Y1 as input
 //	2. set Y2 as input with pullup
 //	3. set X1,X2 as outputs, LOW
-//	4. read Y2 - 0 touch
+//	4. read Y1 - 0 touch
 //						 - 1 no touch
 //	5. remove pullup on Y2
-//	6. set X2,Y2 as outputs
+//	6. set Y1,Y2 as outputs
 //	7. restore all registers to state on entry
 
 bool Lcd::detectTouch(void) {
@@ -673,39 +665,46 @@ volatile uint8_t ddrb = DDRB;
 volatile uint8_t datc = PORTC;
 volatile uint8_t ddrc = DDRC;
 uint8_t result; 
+	
 	cli();
 
 //	printf(" On Input:\n");
 //	printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
 //	printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
 
-//
-// set Y1, Y2 outputs LOW
-// see note in atmel ds about changing between input and outpu
-//
-	// assume Y1, Y2 are currently outputs
-	// Set outputs LOW before changing DDR
-	PORTB = datb & ~Y2;			// set outputs LOW before changing DDR
-	PORTC = datc & ~Y1;
+	//
+	// set Y1 as input
+	//
+	DDRC &= ~Y1;
+	PORTC &= ~Y1;
+//pinMode(YY1, INPUT);	// set Y2 as input with pullup
 
-	// set Y1, Y2 as inputs
-	DDRB = ddrb & ~Y2;
-	DDRC = ddrc & ~Y1;
-	PORTB = ddrb | Y2;		// pullup on Y2 
+	DDRB &= ~Y2;
+	PORTB |= Y2;		
+//pinMode(YY2, INPUT_PULLUP);
 
-	// set X1, X2 outputs LOW
-	PORTB = datb & ~X2;
-	PORTC = datc & ~X1;
+	// set X1 output, LOW
+//	DDRB |= X2;
+volatile uint16_t *mregb = (uint16_t *)&DDRB;
+	*mregb |= X2;
+//pinMode(XX2, OUTPUT);
 
-//	printf(" After Setup:\n");
-//	printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//	printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
+	PORTB &= ~X2;
+//digitalWrite(XX2, LOW);
+
+
+	// set X2 output, low
+//	DDRC |= X1;
+//pinMode(XX1, OUTPUT);
+
+//	PORTC &= ~X1;
+//digitalWrite(XX1, LOW);
 
 	// get the result
-	result = PINB & Y2;
+//	result = PINC & Y1;
+	result = digitalRead(YY1); // 0 - touched
 
-	// (DDRB,PORTB) = (0,0)
-	PORTB = datb & ~Y2;				// remove pullup
+	PORTB &= ~Y2;				// remove pullup
 	DDRB = ddrb;
 	PORTB = datb;
 
