@@ -595,7 +595,7 @@ deltax = YMAX-YMIN;
   return true;
 }
 
-
+#if 0
 bool Lcd::dt(void) {
 
 uint8_t x1;
@@ -646,6 +646,7 @@ sei();
 return result;
 
 }
+#endif
 
 
 //
@@ -667,10 +668,6 @@ volatile uint8_t ddrc = DDRC;
 uint8_t result; 
 	
 	cli();
-
-//	printf(" On Input:\n");
-//	printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//	printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
 
 	//
 	// set Y1 as input
@@ -706,10 +703,6 @@ uint8_t result;
 	// now restore everything
 	DDRC = ddrc;
 	PORTC = datc;
-
-//	printf(" On Exit: result: 0x%x\n", result);
-//	printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//	printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
 
 	sei();
 	if (result) {

@@ -73,32 +73,6 @@ pixColor b = {0x0,0x3c,0x0};
   printf("main: Starting loop\n");
 #endif
 
-	{
-		uint8_t port = digitalPinToPort(XX1);
-		uint8_t pin = digitalPinToBitMask(XX1);
-		printf(" XX1: port: 0x%x, pin: 0x%x\n", port,pin);
-
-		port = digitalPinToPort(XX2);
-		pin = digitalPinToBitMask(XX2);
-		printf(" XX2: port: 0x%x, pin: 0x%x\n", port,pin);
-
-		port = digitalPinToPort(YY1);
-		pin = digitalPinToBitMask(YY1);
-		printf(" YY1: port: 0x%x, pin: 0x%x\n", port,pin);
-		
-		port = digitalPinToPort(YY2);
-		pin = digitalPinToBitMask(YY2);
-		printf(" YY2: port: 0x%x, pin: 0x%x\n", port,pin);
-
-
-		printf(" X1: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTC, X1);
-		printf(" X2: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTB, X2);
-		printf(" Y1: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTC, Y1);
-		printf(" Y2: port: 0x%x, pin: 0x%x\n", (uint16_t)PORTB, Y2);
-		
-	}
-
-
 	ElapsedTime *et = new ElapsedTime(100);
 
   while(1) {

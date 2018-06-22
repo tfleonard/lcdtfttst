@@ -191,7 +191,7 @@ public:
   
 	// touch screen
 	bool detectTouch(void);
-	bool dt(void);
+//	bool dt(void);
   bool tch(cursor_t *t);
 
 	friend class Graphics;
