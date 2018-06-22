@@ -127,7 +127,8 @@ Clock::~Clock(void) {
 
 
 void usecDly(int x) {
-	while (x--);
+	volatile uint16_t xx = x;
+	while (xx--);
 }
 
 

@@ -677,32 +677,27 @@ uint8_t result;
 	//
 	DDRC &= ~Y1;
 	PORTC &= ~Y1;
-//pinMode(YY1, INPUT);	// set Y2 as input with pullup
 
+	//
+	// set Y2 as input, pullup
 	DDRB &= ~Y2;
 	PORTB |= Y2;		
-//pinMode(YY2, INPUT_PULLUP);
 
-	// set X1 output, LOW
-//	DDRB |= X2;
-volatile uint16_t *mregb = (uint16_t *)&DDRB;
-	*mregb |= X2;
-//pinMode(XX2, OUTPUT);
-
+	// set X2 output
+	DDRB |= (uint8_t)X2;
+	// set X2 low
 	PORTB &= ~X2;
-//digitalWrite(XX2, LOW);
 
+	// set X1 output
+	DDRC |= X1;
+	// set x1 low
+	PORTC &= ~X1;
 
-	// set X2 output, low
-//	DDRC |= X1;
-//pinMode(XX1, OUTPUT);
-
-//	PORTC &= ~X1;
-//digitalWrite(XX1, LOW);
+	// give things time to settle down
+	usecDly(USEC/2);
 
 	// get the result
-//	result = PINC & Y1;
-	result = digitalRead(YY1); // 0 - touched
+	result = PINC & Y1;
 
 	PORTB &= ~Y2;				// remove pullup
 	DDRB = ddrb;
@@ -734,4 +729,5 @@ int lcd_putc(char c, FILE *f) {
 	Lcd::lcd_putchar(c);
 	return 0;
 }
+
 
