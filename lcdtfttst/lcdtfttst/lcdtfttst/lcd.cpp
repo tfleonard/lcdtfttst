@@ -486,167 +486,97 @@ void Lcd::drawCursor(uint8_t erase) {
 }
 
 
-bool Lcd::tch(cursor_t *t) {
-uint8_t x1;
-uint8_t x2;
-uint8_t y1;
-uint8_t y2;
-uint8_t result;
-volatile int32_t adcval;
-int32_t deltax;
-int32_t deltay;
 
-#ifdef FLIPXY
-deltax = XMAX-XMIN;
-deltay = YMAX-YMIN;
-#else
-deltay = XMAX-XMIN;
-deltax = YMAX-YMIN;
-#endif
+bool Lcd::getTouch(cursor_t *t) {
+	uint8_t x1;
+	uint8_t x2;
+	uint8_t y1;
+	uint8_t y2;
+	uint8_t result;
+	volatile int32_t adcval;
+	int32_t deltax;
+	int32_t deltay;
 
-  
-  cli();
-  // save the current state of the x and y bits
-  x1 = digitalRead(XX1);
-  x2 = digitalRead(XX2);
-  y1 = digitalRead(YY1);
-  y2 = digitalRead(YY2);
-  
-  // first see if we have a touch  
-  pinMode(YY1, INPUT);
-  pinMode(YY2, INPUT_PULLUP);
-  
-  pinMode(XX1, OUTPUT);
-  pinMode(XX2, OUTPUT);
-  digitalWrite(XX1, LOW);
-  digitalWrite(XX2, LOW);
- 
-  if (digitalRead(YY1)) {
-    // no, restore the state and exit
-    pinMode(YY1,OUTPUT);
-    pinMode(YY2,OUTPUT);
+	#ifdef FLIPXY
+	deltax = XMAX-XMIN;
+	deltay = YMAX-YMIN;
+	#else
+	deltay = XMAX-XMIN;
+	deltax = YMAX-YMIN;
+	#endif
 
-    digitalWrite(XX1,x1);
-    digitalWrite(XX2,x2);
-    digitalWrite(YY1,y1);
-    digitalWrite(YY2,y2);
-    
-    sei();
-//    printf("No touch found!\n");
-    return false;
-  }
+	if (!detectTouch()) {
+		return false;
+	}
 
-  //
-  // get x  first
-  //
-  digitalWrite(XX2, HIGH);    // top of screen
-  digitalWrite(XX1, LOW);    // top of screen
-  digitalWrite(YY2,LOW);
-  digitalWrite(YY1,LOW);
-  pinMode (YY2, INPUT);
-  pinMode(YY1,INPUT);
-  adcval = analogRead(YY1);
+	cli();
+	// save the current state of the x and y bits
+	x1 = digitalRead(XX1);
+	x2 = digitalRead(XX2);
+	y1 = digitalRead(YY1);
+	y2 = digitalRead(YY2);
+		
+	pinMode(XX1, OUTPUT);
+	pinMode(XX2, OUTPUT);
+	digitalWrite(XX2, HIGH);    // top of screen
+	digitalWrite(XX1, LOW);    // top of screen
 
-//printf("adc col: %i\n", adcval);
-  adcval -= XMIN;
-  if (adcval < 0) {
-    adcval = 0;
-  }
-  adcval = adcval * NUM_PIX_PER_LINE / (XMAX-XMIN);
-  if (adcval > NUM_PIX_PER_LINE) {
-    adcval = NUM_PIX_PER_LINE;
-  }
-//printf("adj col: %i\n", adcval);
-  t->col = (uint16_t)adcval; 
+	digitalWrite(YY2,LOW);
+	digitalWrite(YY1,LOW);
+	pinMode (YY2, INPUT);
+	pinMode(YY1,INPUT);
+	adcval = analogRead(YY1);
 
-  // 
-  // now get y
-  // 
-  pinMode(YY1, OUTPUT);
-  pinMode(YY2, OUTPUT);
-  digitalWrite(XX1,LOW);
-  pinMode(XX1, INPUT);
-  pinMode(XX2, INPUT);
+	//printf("adc col: %i\n", adcval);
+	adcval -= XMIN;
+	if (adcval < 0) {
+		adcval = 0;
+	}
+	adcval = adcval * NUM_PIX_PER_LINE / (XMAX-XMIN);
+	if (adcval > NUM_PIX_PER_LINE) {
+		adcval = NUM_PIX_PER_LINE;
+	}
+	//printf("adj col: %i\n", adcval);
+	t->col = (uint16_t)adcval;
 
-  digitalWrite(YY1, LOW);
-  digitalWrite(YY2, HIGH);
-  adcval = analogRead(XX1); 
+	//
+	// now get y
+	//
+	pinMode(YY1, OUTPUT);
+	pinMode(YY2, OUTPUT);
+	digitalWrite(YY1, LOW);
+	digitalWrite(YY2, HIGH);
 
-//printf("raw row: %i\n", adcval);
-  adcval -= YMIN;
-  if (adcval < 0) {
-    adcval = 0;
-  }
-  adcval = adcval * NUM_PIX_LINES / (YMAX-YMIN);
-  if (adcval > NUM_PIX_LINES) {
-    adcval = NUM_PIX_LINES;
-  }
-//printf("adj row: %i\n", adcval);
-  t->line = (uint16_t)adcval;
+	digitalWrite(XX1,LOW);
+	pinMode(XX1, INPUT);
+	pinMode(XX2, INPUT);
 
-  pinMode(XX1,OUTPUT);
-  pinMode(XX2,OUTPUT);
-  digitalWrite(XX1,x1);
-  digitalWrite(XX2,x2);
-  digitalWrite(YY1,y1);
-  digitalWrite(YY2,y2);
+	adcval = analogRead(XX1);
 
-  sei();
-  return true;
+	//printf("raw row: %i\n", adcval);
+	adcval -= YMIN;
+	if (adcval < 0) {
+		adcval = 0;
+	}
+	adcval = adcval * NUM_PIX_LINES / (YMAX-YMIN);
+	if (adcval > NUM_PIX_LINES) {
+		adcval = NUM_PIX_LINES;
+	}
+	//printf("adj row: %i\n", adcval);
+	t->line = (uint16_t)adcval;
+
+	pinMode(XX1,OUTPUT);
+	pinMode(XX2,OUTPUT);
+	digitalWrite(XX1,x1);
+	digitalWrite(XX2,x2);
+	digitalWrite(YY1,y1);
+	digitalWrite(YY2,y2);
+
+	sei();
+	return true;
 }
 
-#if 0
-bool Lcd::dt(void) {
 
-uint8_t x1;
-uint8_t x2;
-uint8_t y1;
-uint8_t y2;
-uint8_t result;
-
-cli();
-x1 = digitalRead(XX1);
-x2 = digitalRead(XX2);
-y1 = digitalRead(YY1);
-y2 = digitalRead(YY2);
-
-//printf(" On Input:\n");
-//printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
-
-
-pinMode(YY1, INPUT);
-pinMode(YY2, INPUT_PULLUP);
-
-pinMode(XX1, OUTPUT);
-pinMode(XX2, OUTPUT);
-digitalWrite(XX1, LOW);
-digitalWrite(XX2, LOW);
-
-//printf(" After setup:\n");
-//printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
-
-result = !digitalRead(YY1); // 0 - touched
-
-pinMode(YY1,OUTPUT);
-pinMode(YY2,OUTPUT);
-
-digitalWrite(XX1,x1);
-digitalWrite(XX2,x2);
-digitalWrite(YY1,y1);
-digitalWrite(YY2,y2);
-
-//printf(" On Exit: result: 0x%x\n", result);
-//printf( "Portb: 0x%x, Pinb: 0x%x, Ddrb: 0x%x\n", PORTB, PINB, DDRB);
-//printf( "Portc: 0x%x, Pinc: 0x%x, Ddrc: 0x%x\n", PORTC, PINC, DDRC);
-
-
-sei();
-return result;
-
-}
-#endif
 
 
 //

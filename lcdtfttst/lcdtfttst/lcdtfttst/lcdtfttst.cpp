@@ -31,6 +31,8 @@
 #include "sw.h"
 #include "ElapsedTime.h"
 #include "Encoder.h"
+#include "touch.h"
+
 
 //Beginning of Auto generated function prototypes by Atmel Studio
 void mymain(void );
@@ -77,16 +79,13 @@ pixColor b = {0x0,0x3c,0x0};
 
   while(1) {
     char buf[16];
-
-			if (l->detectTouch()) {
-//			if (l->dt()) {
+		cursor_t t;
+			if (l->getTouch(&t)) {
 				g->gotoxy(3,0);
 				fprintf(lcdfp, "Touch  pass: %d", pass);
-        cursor_t t;
-        l->tch(&t);
         g->gotoxy(15,0);
         fprintf(lcdfp," x: %i  y: %i     ", t.col, t.line);        
-				} else {
+			} else {
 				g->gotoxy(3,0);
 				fprintf(lcdfp, "No Touch        ");
 			}
