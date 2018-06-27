@@ -580,10 +580,10 @@ bool Lcd::getTouch(cursor_t *t) {
 #else
 
 bool Lcd::getTouch(cursor_t *t) {
-volatile uint8_t datb = PORTB;
-volatile uint8_t ddrb = DDRB;
-volatile uint8_t datc = PORTC;
-volatile uint8_t ddrc = DDRC;
+volatile uint8_t datb; 
+volatile uint8_t ddrb;
+volatile uint8_t datc; 
+volatile uint8_t ddrc; 
 
 	uint8_t result;
 	volatile int32_t adcval;
@@ -602,22 +602,34 @@ volatile uint8_t ddrc = DDRC;
 		return false;
 	}
 
-	cli();
-	// save the current state of the x and y bits
-	x1 = digitalRead(XX1);
-	x2 = digitalRead(XX2);
-	y1 = digitalRead(YY1);
-	y2 = digitalRead(YY2);
-	
-	pinMode(XX1, OUTPUT);
-	pinMode(XX2, OUTPUT);
-	digitalWrite(XX2, HIGH);    // top of screen
-	digitalWrite(XX1, LOW);    // top of screen
+	// save the current state of ports b and c
+	datb = PORTB;
+	ddrb = DDRB;
+	datc = PORTC;
+	ddrc = DDRC;
 
-	digitalWrite(YY2,LOW);
-	digitalWrite(YY1,LOW);
-	pinMode (YY2, INPUT);
-	pinMode(YY1,INPUT);
+	cli();
+	
+//	pinMode(XX1, OUTPUT);
+	DDRC |= X1;
+//	digitalWrite(XX1, LOW);    // top of screen
+	PORTC &= ~X1;
+
+//	pinMode(XX2, OUTPUT);
+	DDRB |= X2;
+//	digitalWrite(XX2, HIGH);    // top of screen
+	PORTB |= X2;
+
+//	digitalWrite(YY2,LOW);
+	PORTB &= ~Y2;
+//	pinMode (YY2, INPUT);
+	DDRB &= ~Y2;
+
+//	digitalWrite(YY1,LOW);
+	PORTC &= ~Y1;
+//	pinMode(YY1,INPUT);
+	DDRC &= ~Y1;
+
 	adcval = analogRead(YY1);
 
 	//printf("adc col: %i\n", adcval);
@@ -635,14 +647,24 @@ volatile uint8_t ddrc = DDRC;
 	//
 	// now get y
 	//
-	pinMode(YY1, OUTPUT);
-	pinMode(YY2, OUTPUT);
-	digitalWrite(YY1, LOW);
-	digitalWrite(YY2, HIGH);
+//	pinMode(YY1, OUTPUT);
+	DDRC |= Y1;
+//	digitalWrite(YY1, LOW);
+	PORTC &= ~Y1;
 
-	digitalWrite(XX1,LOW);
-	pinMode(XX1, INPUT);
-	pinMode(XX2, INPUT);
+//	pinMode(YY2, OUTPUT);
+	DDRB |= Y2;
+//	digitalWrite(YY2, HIGH);
+	PORTB |= Y2;
+
+//	pinMode(XX1, INPUT);
+	DDRC &= ~X1;
+
+//	digitalWrite(XX2,LOW);
+	PORTB &= ~X2;
+
+//	pinMode(XX2, INPUT);
+	DDRB &= ~X2;
 
 	adcval = analogRead(XX1);
 
@@ -658,12 +680,13 @@ volatile uint8_t ddrc = DDRC;
 	//printf("adj row: %i\n", adcval);
 	t->line = (uint16_t)adcval;
 
-	pinMode(XX1,OUTPUT);
-	pinMode(XX2,OUTPUT);
-	digitalWrite(XX1,x1);
-	digitalWrite(XX2,x2);
-	digitalWrite(YY1,y1);
-	digitalWrite(YY2,y2);
+//	digitalWrite(YY2, LO);
+	PORTB &= ~Y2;
+
+	PORTB = datb;
+	DDRB = ddrb;
+	PORTC = datc;
+	DDRC = ddrc;
 
 	sei();
 	return true;

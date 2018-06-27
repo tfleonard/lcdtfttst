@@ -31,7 +31,6 @@
 #include "sw.h"
 #include "ElapsedTime.h"
 #include "Encoder.h"
-#include "touch.h"
 
 
 //Beginning of Auto generated function prototypes by Atmel Studio
