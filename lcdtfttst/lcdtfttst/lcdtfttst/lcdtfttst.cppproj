@@ -279,9 +279,6 @@
     <Compile Include="sw.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="touch.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="uart.cpp">
       <SubType>compile</SubType>
     </Compile>

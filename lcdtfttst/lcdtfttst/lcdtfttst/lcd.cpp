@@ -486,6 +486,7 @@ void Lcd::drawCursor(uint8_t erase) {
 }
 
 
+#if 0
 
 bool Lcd::getTouch(cursor_t *t) {
 	uint8_t x1;
@@ -576,7 +577,99 @@ bool Lcd::getTouch(cursor_t *t) {
 	return true;
 }
 
+#else
 
+bool Lcd::getTouch(cursor_t *t) {
+volatile uint8_t datb = PORTB;
+volatile uint8_t ddrb = DDRB;
+volatile uint8_t datc = PORTC;
+volatile uint8_t ddrc = DDRC;
+
+	uint8_t result;
+	volatile int32_t adcval;
+	int32_t deltax;
+	int32_t deltay;
+
+	#ifdef FLIPXY
+	deltax = XMAX-XMIN;
+	deltay = YMAX-YMIN;
+	#else
+	deltay = XMAX-XMIN;
+	deltax = YMAX-YMIN;
+	#endif
+
+	if (!detectTouch()) {
+		return false;
+	}
+
+	cli();
+	// save the current state of the x and y bits
+	x1 = digitalRead(XX1);
+	x2 = digitalRead(XX2);
+	y1 = digitalRead(YY1);
+	y2 = digitalRead(YY2);
+	
+	pinMode(XX1, OUTPUT);
+	pinMode(XX2, OUTPUT);
+	digitalWrite(XX2, HIGH);    // top of screen
+	digitalWrite(XX1, LOW);    // top of screen
+
+	digitalWrite(YY2,LOW);
+	digitalWrite(YY1,LOW);
+	pinMode (YY2, INPUT);
+	pinMode(YY1,INPUT);
+	adcval = analogRead(YY1);
+
+	//printf("adc col: %i\n", adcval);
+	adcval -= XMIN;
+	if (adcval < 0) {
+		adcval = 0;
+	}
+	adcval = adcval * NUM_PIX_PER_LINE / (XMAX-XMIN);
+	if (adcval > NUM_PIX_PER_LINE) {
+		adcval = NUM_PIX_PER_LINE;
+	}
+	//printf("adj col: %i\n", adcval);
+	t->col = (uint16_t)adcval;
+
+	//
+	// now get y
+	//
+	pinMode(YY1, OUTPUT);
+	pinMode(YY2, OUTPUT);
+	digitalWrite(YY1, LOW);
+	digitalWrite(YY2, HIGH);
+
+	digitalWrite(XX1,LOW);
+	pinMode(XX1, INPUT);
+	pinMode(XX2, INPUT);
+
+	adcval = analogRead(XX1);
+
+	//printf("raw row: %i\n", adcval);
+	adcval -= YMIN;
+	if (adcval < 0) {
+		adcval = 0;
+	}
+	adcval = adcval * NUM_PIX_LINES / (YMAX-YMIN);
+	if (adcval > NUM_PIX_LINES) {
+		adcval = NUM_PIX_LINES;
+	}
+	//printf("adj row: %i\n", adcval);
+	t->line = (uint16_t)adcval;
+
+	pinMode(XX1,OUTPUT);
+	pinMode(XX2,OUTPUT);
+	digitalWrite(XX1,x1);
+	digitalWrite(XX2,x2);
+	digitalWrite(YY1,y1);
+	digitalWrite(YY2,y2);
+
+	sei();
+	return true;
+}
+
+#endif
 
 
 //
