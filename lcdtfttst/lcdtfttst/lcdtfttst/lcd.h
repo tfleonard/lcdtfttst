@@ -127,6 +127,13 @@
 #define YY2 9   //
 #define XX2 8   //
 
+#define Y1A	PC3
+#define X1A PC2
+
+// ADMUX defines
+#define ADCREF	(0x1 << 6)			// AREF pin
+#define ADCLKDIF	0x07				// divide by 128
+
 #endif
 
 
